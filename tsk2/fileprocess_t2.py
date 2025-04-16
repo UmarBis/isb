@@ -14,30 +14,20 @@ def argset():
     args = parser.parse_args()
     return args
 
-def read_file(filename: str) -> str:
-    """
-    Чтение файла
-    :param filename: имя файла
-    :return: прочитанная строка из файла
-    """
-    try:
-        with open(filename, "r", encoding="utf-8") as file:
-            return file.read()
-    except Exception as e:
-        print("Не удалось прочесть файл")
 
 
-def write_to_file(decrypted_text: str, output_textfile: str, decryption_key, output_keyfile: str) -> None:
+
+def write_to_file(decryption_key, output_keyfile: str) -> None:
     """
-    Запись текста и ключа в файл
-    :param decrypted_text: дешифрованный текст
+    Запись ключа в файл
     :param decryption_key: ключ дешифрования
     :return: запись
     """
-    with open(output_textfile, "w", encoding="utf-8") as file:
-        file.write(decrypted_text)
-    with open(output_keyfile, "w", encoding="utf-8") as file:
-        json.dump(decryption_key, file, ensure_ascii=False, indent=4)
+    try:
+        with open(output_keyfile, "w", encoding="utf-8") as file:
+            json.dump(decryption_key, file, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print("Ошибка при записи: ", str(e))
 
 def load_freq(filename: str) -> str:
     """
