@@ -23,7 +23,7 @@ def read_from_file(filename: str) -> str:
         with open(filename, 'r', encoding='utf-8') as f:
             return f.read().strip()
     except Exception as e:
-        print("Не удалось прочесть файл.")
+        print("Не удалось прочесть файл: ", str(e))
 
 def load_key(filename: str) -> str:
     """
@@ -35,7 +35,7 @@ def load_key(filename: str) -> str:
         with open(filename, "r", encoding="utf-8") as file:
             return json.load(file)
     except Exception as e:
-        print("Ошибка при загрузке ключа.")
+        print("Ошибка при загрузке ключа: ", str(e))
 
 
 def write_file(encrypted_text: str, filename) -> None:
@@ -44,5 +44,8 @@ def write_file(encrypted_text: str, filename) -> None:
     :param encrypted_text: итоговый текст
     :return: Запись
     """
-    with open(filename, "w", encoding="utf-8") as file:
-        file.write(encrypted_text)
+    try:
+        with open(filename, "w", encoding="utf-8") as file:
+            file.write(encrypted_text)
+    except Exception as e:
+        print("Ошибка при записи: ", str(e))
