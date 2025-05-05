@@ -1,6 +1,11 @@
 from math import erfc
 
 def frequency_test(bits):
+    """
+    Частотный тест
+    :param bits:бинарная последовательность
+    :return:p_value 
+    """
     n = len(bits)
     count = sum(1 if b == '1' else -1 for b in bits)
     s_obs = abs(count) / (n ** 0.5)
@@ -8,6 +13,11 @@ def frequency_test(bits):
     return p_value
 
 def runs_test(bits):
+    """
+    Тест на одинаковые подряд идущие биты
+    :param bits: бинарная последовательность
+    :return: p_value
+    """
     n = len(bits)
     pi = bits.count('1') / n
     if abs(pi - 0.5) >= (2 / n) ** 0.5:
@@ -19,10 +29,17 @@ def runs_test(bits):
     return p_value
 
 def longest_run_test(bits, block_size=128):
+    """
+    Тест на самую длинную последовательность единиц в блоке
+    :param bits: бинарная последовательность
+    :param block_size: размер блока
+    :return: средняя макс длину по всем блокам
+    """
     n = len(bits)
     if n < block_size * 16:
         raise ValueError("Sequence too short")
     blocks = [bits[i:i+block_size] for i in range(0, len(bits), block_size)]
     max_runs = [max(len(s) for s in block.split('0')) for block in blocks]
     return sum(max_runs) / len(max_runs)
+
 
