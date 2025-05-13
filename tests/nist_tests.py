@@ -1,10 +1,11 @@
-from math import erfc
+from math import erfc, floor
+from scipy.stats import chi2
 
 def frequency_test(bits):
     """
     Частотный тест
     :param bits:бинарная последовательность
-    :return:p_value 
+    :return:p_value
     """
     n = len(bits)
     count = sum(1 if b == '1' else -1 for b in bits)
@@ -28,18 +29,33 @@ def runs_test(bits):
     p_value = erfc(numerator / denominator)
     return p_value
 
-def longest_run_test(bits, block_size=128):
+def longest_run_test(bits):
     """
     Тест на самую длинную последовательность единиц в блоке
     :param bits: бинарная последовательность
-    :param block_size: размер блока
     :return: средняя макс длину по всем блокам
     """
+    M = 8
+    pi = [0.2148, 0.3672, 0.2305, 0.1875]
     n = len(bits)
-    if n < block_size * 16:
-        raise ValueError("Sequence too short")
-    blocks = [bits[i:i+block_size] for i in range(0, len(bits), block_size)]
-    max_runs = [max(len(s) for s in block.split('0')) for block in blocks]
-    return sum(max_runs) / len(max_runs)
+    N = floor(n / M)
+    if N == 0:
+        raise ValueError("Sequence too short for M=8")
+    blocks = [bits[i * M:(i + 1) * M] for i in range(N)]
+    v = [0] * 4
+    for block in blocks:
+        runs = [len(run) for run in block.split('0')]
+        max_run = max(runs)
+        if max_run <= 1:
+            v[0] += 1
+        elif max_run == 2:
+            v[1] += 1
+        elif max_run == 3:
+            v[2] += 1
+        else:
+            v[3] += 1
+    chi2_stat = sum((v[i] - N * pi[i]) ** 2 / (N * pi[i]) for i in range(4))
+    p_value = chi2.sf(chi2_stat, df=3)
+    return p_value
 
 
