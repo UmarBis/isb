@@ -29,14 +29,14 @@ def runs_test(bits):
     p_value = erfc(numerator / denominator)
     return p_value
 
-def longest_run_test(bits):
+def longest_run_test(bits, config):
     """
     Тест на самую длинную последовательность единиц в блоке
     :param bits: бинарная последовательность
     :return: средняя макс длину по всем блокам
     """
-    M = 8
-    pi = [0.2148, 0.3672, 0.2305, 0.1875]
+    M = config["block_size"]
+    pi = config["pi"]
     n = len(bits)
     N = floor(n / M)
     if N == 0:
