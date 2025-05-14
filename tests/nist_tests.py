@@ -46,14 +46,15 @@ def longest_run_test(bits, config):
     for block in blocks:
         runs = [len(run) for run in block.split('0')]
         max_run = max(runs)
-        if max_run <= 1:
-            v[0] += 1
-        elif max_run == 2:
-            v[1] += 1
-        elif max_run == 3:
-            v[2] += 1
-        else:
-            v[3] += 1
+        match max_run:
+            case _ if max_run <= 1:
+                v[0] += 1
+            case 2:
+                v[1] += 1
+            case 3:
+                v[2] += 1
+            case _:
+                v[3] += 1
     chi2_stat = sum((v[i] - N * pi[i]) ** 2 / (N * pi[i]) for i in range(4))
     p_value = chi2.sf(chi2_stat, df=3)
     return p_value
