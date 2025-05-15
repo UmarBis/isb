@@ -7,13 +7,16 @@ class ChaCha20Cipher:
         self.key = None
         self.nonce = None
 
-    def generate_key(self):
+    def generate_key(self, config):
         """
         Генерация ключа и nonce (Chacha20)
+        :param config: конфиг 
         :return: key & nonce
         """
-        self.key = os.urandom(32)
-        self.nonce = os.urandom(16)
+        s1 = config["s1"]
+        s2 = config["s2"]
+        self.key = os.urandom(s1)
+        self.nonce = os.urandom(s2)
         return self.key + self.nonce
 
     def encrypt(self, data: bytes) -> bytes:
