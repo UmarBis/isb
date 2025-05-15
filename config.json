@@ -4,5 +4,7 @@
     "decrypted_file_path": "decrypted.txt",
     "symmetric_key_path": "symmetric.key",
     "public_key_path": "public.pem",
-    "private_key_path": "private.pem"
+    "private_key_path": "private.pem",
+    "s1": 32,
+    "s2": 12
 }
