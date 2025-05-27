@@ -9,8 +9,11 @@ class FileUtils:
         :param path: путь к файлу
         :return: чтение
         """
-        with open(path, 'rb') as f:
-            return f.read()
+        try:
+            with open(path, 'rb') as f:
+                return f.read()
+        except Exception as e:
+            print("Error..", str(e))
 
     @staticmethod
     def write_bytes(path: str, data: bytes):
@@ -20,8 +23,11 @@ class FileUtils:
         :param data: записываемые данные
         :return: запись
         """
-        with open(path, 'wb') as f:
-            f.write(data)
+        try:
+            with open(path, 'wb') as f:
+                f.write(data)
+        except Exception as e:
+            print("Error..", str(e))
 
     @staticmethod
     def load_config(path: str) -> dict:
@@ -30,8 +36,11 @@ class FileUtils:
         :param path: путь к json
         :return: загрузка
         """
-        with open(path, 'r') as f:
-            return json.load(f)
+        try:
+            with open(path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print("Error..", str(e))
 
     @staticmethod
     def argset():
