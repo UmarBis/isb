@@ -3,9 +3,6 @@ from cryptography.hazmat.primitives import serialization, hashes
 
 
 class RSACipher:
-    def __init__(self):
-        self.private_key = None
-        self.public_key = None
 
     def generate_keys(self):
         """
