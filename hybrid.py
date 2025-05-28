@@ -6,7 +6,7 @@ from fileproccesing import FileUtils
 class HybridCipher:
     def __init__(self):
         self.symmetric = ChaCha20Cipher()
-        self.asymmetric = RSACipher()
+
 
     def generate_keys(self, symmetric_key_path: str, public_key_path: str, private_key_path: str):
         """
