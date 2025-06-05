@@ -7,7 +7,6 @@ class HybridCipher:
     def __init__(self):
         self.symmetric = ChaCha20Cipher()
 
-
     def generate_keys(self, symmetric_key_path: str, public_key_path: str, private_key_path: str):
         """
         Генерация всех ключей
@@ -18,11 +17,12 @@ class HybridCipher:
         """
         symmetric_key_data = self.symmetric.generate_key()
 
-        self.asymmetric.generate_keys()
+        rsa = RSACipher()
+        rsa.generate_keys()
+        rsa.save_keys(private_key_path, public_key_path)
 
-        self.asymmetric.save_keys(private_key_path, public_key_path)
-
-        encrypted_sym_key = self.asymmetric.encrypt(symmetric_key_data)
+        rsa.load_keys(None, public_key_path)
+        encrypted_sym_key = rsa.encrypt(symmetric_key_data)
         FileUtils.write_bytes(symmetric_key_path, encrypted_sym_key)
 
     def encrypt_file(self, input_path: str, output_path: str, private_key_path: str,
@@ -35,10 +35,11 @@ class HybridCipher:
         :param encrypted_sym_key_path: зашифрованный симметричный ключ
         :return: шифр файла
         """
-        self.asymmetric.load_keys(private_key_path, None)
+        rsa = RSACipher()
+        rsa.load_keys(private_key_path, None)
 
         encrypted_sym_key = FileUtils.read_bytes(encrypted_sym_key_path)
-        symmetric_key_data = self.asymmetric.decrypt(encrypted_sym_key)
+        symmetric_key_data = rsa.decrypt(encrypted_sym_key)
         self.symmetric.set_key(symmetric_key_data)
 
         data = FileUtils.read_bytes(input_path)
@@ -55,10 +56,11 @@ class HybridCipher:
         :param encrypted_sym_key_path: зашифрованный симметричный ключ
         :return: дешифр файла
         """
-        self.asymmetric.load_keys(private_key_path, None)
+        rsa = RSACipher()
+        rsa.load_keys(private_key_path, None)
 
         encrypted_sym_key = FileUtils.read_bytes(encrypted_sym_key_path)
-        symmetric_key_data = self.asymmetric.decrypt(encrypted_sym_key)
+        symmetric_key_data = rsa.decrypt(encrypted_sym_key)
         self.symmetric.set_key(symmetric_key_data)
 
         encrypted_data = FileUtils.read_bytes(input_path)
