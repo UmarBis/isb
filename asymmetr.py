@@ -3,17 +3,20 @@ from cryptography.hazmat.primitives import serialization, hashes
 
 
 class RSACipher:
+    def __init__(self):
+        self.public_key = None
 
     def generate_keys(self):
         """
         Генерация ключей
         :return: ключи
         """
-        self.private_key = rsa.generate_private_key(
+        private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048
         )
-        self.public_key = self.private_key.public_key()
+        self.public_key = private_key.public_key()
+        return private_key
 
     def encrypt(self, data: bytes) -> bytes:
         """
@@ -33,16 +36,14 @@ class RSACipher:
             )
         )
 
-    def decrypt(self, encrypted_data: bytes) -> bytes:
+    def decrypt(self, encrypted_data: bytes, private_key) -> bytes:
         """
         Дешифрование данных
         :param encrypted_data: шифрованные данные
+        :param private_key: приватный ключ
         :return: их дешифр
         """
-        if not self.private_key:
-            raise ValueError("Закрытый ключ не инициализирован")
-
-        return self.private_key.decrypt(
+        return private_key.decrypt(
             encrypted_data,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -51,32 +52,39 @@ class RSACipher:
             )
         )
 
-    def load_keys(self, private_key_path: str, public_key_path: str):
+    def load_public_key(self, public_key_path: str):
         """
-        Загрузка ключей
-        :param private_key_path: приватный ключ
+        Загрузка ключа
         :param public_key_path: публичный ключ
-        :return: их загрузка
+        :return: его загрузка
+        """
+        with open(public_key_path, 'rb') as f:
+            self.public_key = serialization.load_pem_public_key(f.read())
+
+    def load_private_key(self, private_key_path: str):
+        """
+        Загрузка ключа
+        :param private_key_path: приватный ключ
+        :return: его загрузка
         """
         with open(private_key_path, 'rb') as f:
-            self.private_key = serialization.load_pem_private_key(
+            return serialization.load_pem_private_key(
                 f.read(),
                 password=None
             )
-        self.public_key = self.private_key.public_key()
 
-    def save_keys(self, private_key_path: str, public_key_path: str):
+    def save_keys(self, private_key, private_key_path: str, public_key_path: str):
         """
         Сохранение ключей
         :param private_key_path: приватный ключ
         :param public_key_path: публичный ключ
         :return: их сохранение
         """
-        if not self.private_key or not self.public_key:
+        if not self.public_key:
             raise ValueError("Ключи не инициализированы")
 
         with open(private_key_path, 'wb') as f:
-            f.write(self.private_key.private_bytes(
+            f.write(private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.TraditionalOpenSSL,
                 encryption_algorithm=serialization.NoEncryption()
