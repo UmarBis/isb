@@ -3,31 +3,28 @@ from cryptography.hazmat.primitives import serialization, hashes
 
 
 class RSACipher:
-    def __init__(self):
-        self.public_key = None
-
-    def generate_keys(self):
+    @staticmethod
+    def generate_keys():
         """
         Генерация ключей
-        :return: ключи
+        :return: (приватный ключ, публичный ключ)
         """
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048
         )
-        self.public_key = private_key.public_key()
-        return private_key
+        public_key = private_key.public_key()
+        return private_key, public_key
 
-    def encrypt(self, data: bytes) -> bytes:
+    @staticmethod
+    def encrypt(data: bytes, public_key) -> bytes:
         """
         Шифрование данных
         :param data: данные
+        :param public_key: открытый ключ
         :return: их шифр
         """
-        if not self.public_key:
-            raise ValueError("Ключи не инициализированы")
-
-        return self.public_key.encrypt(
+        return public_key.encrypt(
             data,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -36,12 +33,13 @@ class RSACipher:
             )
         )
 
-    def decrypt(self, encrypted_data: bytes, private_key) -> bytes:
+    @staticmethod
+    def decrypt(encrypted_data: bytes, private_key) -> bytes:
         """
         Дешифрование данных
-        :param encrypted_data: шифрованные данные
-        :param private_key: приватный ключ
-        :return: их дешифр
+        :param encrypted_data: зашифрованные данные
+        :param private_key: закрытый ключ
+        :return: расшифрованные данные
         """
         return private_key.decrypt(
             encrypted_data,
@@ -52,37 +50,15 @@ class RSACipher:
             )
         )
 
-    def load_public_key(self, public_key_path: str):
-        """
-        Загрузка ключа
-        :param public_key_path: публичный ключ
-        :return: его загрузка
-        """
-        with open(public_key_path, 'rb') as f:
-            self.public_key = serialization.load_pem_public_key(f.read())
-
-    def load_private_key(self, private_key_path: str):
-        """
-        Загрузка ключа
-        :param private_key_path: приватный ключ
-        :return: его загрузка
-        """
-        with open(private_key_path, 'rb') as f:
-            return serialization.load_pem_private_key(
-                f.read(),
-                password=None
-            )
-
-    def save_keys(self, private_key, private_key_path: str, public_key_path: str):
+    @staticmethod
+    def save_keys(private_key, private_key_path: str, public_key_path: str):
         """
         Сохранение ключей
-        :param private_key_path: приватный ключ
-        :param public_key_path: публичный ключ
-        :return: их сохранение
+        :param private_key: приватный ключ
+        :param private_key_path: путь к файлу приватного ключа
+        :param public_key_path: путь к файлу публичного ключа
+        :return: сохранение на диск
         """
-        if not self.public_key:
-            raise ValueError("Ключи не инициализированы")
-
         with open(private_key_path, 'wb') as f:
             f.write(private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
@@ -90,8 +66,32 @@ class RSACipher:
                 encryption_algorithm=serialization.NoEncryption()
             ))
 
+        public_key = private_key.public_key()
         with open(public_key_path, 'wb') as f:
-            f.write(self.public_key.public_bytes(
+            f.write(public_key.public_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PublicFormat.SubjectPublicKeyInfo
             ))
+
+    @staticmethod
+    def load_private_key(path: str):
+        """
+        Загрузка приватного ключа
+        :param path: путь к приватному ключу
+        :return: приватный ключ
+        """
+        with open(path, 'rb') as f:
+            return serialization.load_pem_private_key(
+                f.read(),
+                password=None
+            )
+
+    @staticmethod
+    def load_public_key(path: str):
+        """
+        Загрузка публичного ключа
+        :param path: путь к публичному ключу
+        :return: публичный ключ
+        """
+        with open(path, 'rb') as f:
+            return serialization.load_pem_public_key(f.read())
